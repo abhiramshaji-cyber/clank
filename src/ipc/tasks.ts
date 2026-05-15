@@ -72,6 +72,11 @@ export async function toggleTask(
 
 export async function loadTasks(filePath: string): Promise<TaskLine[]> {
   if (!(await exists(filePath))) return [];
-  const content = await readTextFile(filePath);
-  return parseTasks(content);
+  try {
+    const content = await readTextFile(filePath);
+    return parseTasks(content);
+  } catch {
+    // File may have been deleted between the exists() check and readTextFile().
+    return [];
+  }
 }

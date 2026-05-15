@@ -114,7 +114,7 @@ export function Terminal({ cellId, fontSize, onExit }: TerminalProps) {
 
     // user input -> pty
     const dataSub = term.onData((data) => {
-      void ptyWrite(cellId, data);
+      ptyWrite(cellId, data).catch((e) => console.error("ptyWrite:", e));
     });
 
     // Subscribe to global pty:data events, filter by cellId
@@ -142,7 +142,7 @@ export function Terminal({ cellId, fontSize, onExit }: TerminalProps) {
         if (disposed) un();
         else unlistenData = un;
       })
-      .catch(() => {});
+      .catch((e) => console.error("onPtyData listener setup failed:", e));
 
     onPtyExit((e) => {
       if (e.cellId !== cellId) return;
@@ -152,7 +152,7 @@ export function Terminal({ cellId, fontSize, onExit }: TerminalProps) {
         if (disposed) un();
         else unlistenExit = un;
       })
-      .catch(() => {});
+      .catch((e) => console.error("onPtyExit listener setup failed:", e));
 
     // Debounced fit + resize on container changes
     let resizeTimer: number | null = null;

@@ -1,7 +1,6 @@
 import { create } from "zustand";
 import type { CellCount, Settings } from "../types";
-
-const STORAGE_KEY = "clank:settings";
+import { SETTINGS_STORAGE_KEY as STORAGE_KEY } from "./storageKeys";
 
 const DEFAULTS: Settings = {
   onboarded: false,

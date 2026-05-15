@@ -198,12 +198,8 @@ pub fn pty_spawn(
         generation,
     };
 
-    // Insert into registry before spawning reader so events that reference
-    // this cell can find it.
-    CELLS.lock().insert(cell_id.clone(), handle);
-
-    // Spawn the reader thread. Uses blocking reads, so std::thread, not
-    // tokio.
+    // Spawn the reader thread before inserting into the registry so a failed
+    // spawn doesn't leave a zombie handle with no reader.
     let reader_cell_id = cell_id.clone();
     let reader_stop = stop_flag.clone();
     let reader_child = child.clone();
@@ -263,6 +259,10 @@ pub fn pty_spawn(
             }
         })
         .map_err(|e| format!("failed to spawn reader thread: {}", e))?;
+
+    // Insert into registry only after the reader thread is confirmed running,
+    // so a failed spawn never leaves a zombie handle with no reader.
+    CELLS.lock().insert(cell_id.clone(), handle);
 
     // Suppress unused warnings — we keep `master` and `writer` Arcs around
     // via the CellHandle in the registry.

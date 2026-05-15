@@ -96,7 +96,7 @@ function handleRestart(cellId: string): void {
   const cfg = cell.process.config;
   if (!cfg) return;
   if (isLive(cell.process)) {
-    ptyKill(cellId, "SIGKILL").catch(() => {});
+    ptyKill(cellId, "SIGKILL").catch((e) => console.error("ptyKill:", e));
   }
   useCells.getState().dispatchCell(cellId, { type: "LAUNCH", config: cfg });
 }
@@ -104,7 +104,7 @@ function handleRestart(cellId: string): void {
 function handleRemoveCell(cellId: string): void {
   const cell = useCells.getState().cells[cellId];
   if (cell && isLive(cell.process)) {
-    ptyKill(cellId, "SIGKILL").catch(() => {});
+    ptyKill(cellId, "SIGKILL").catch((e) => console.error("ptyKill:", e));
   }
   useCells.getState().removeCell(cellId);
 }

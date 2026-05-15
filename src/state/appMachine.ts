@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import type { CellCount } from "../types";
+import { SETTINGS_STORAGE_KEY } from "./storageKeys";
 
 export type ShrinkRequest = {
   newCount: CellCount;
@@ -102,7 +103,7 @@ type Store = {
  */
 function readOnboardedFlag(): boolean {
   try {
-    const raw = localStorage.getItem("clank:settings");
+    const raw = localStorage.getItem(SETTINGS_STORAGE_KEY);
     if (!raw) return false;
     const parsed = JSON.parse(raw) as { onboarded?: boolean };
     return parsed.onboarded === true;

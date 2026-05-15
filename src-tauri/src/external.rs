@@ -1,5 +1,4 @@
 use std::path::Path;
-use std::process::{Command, Stdio};
 
 #[tauri::command]
 pub fn open_external(cwd: String, app: String) -> Result<(), String> {
@@ -16,6 +15,12 @@ pub fn open_external(cwd: String, app: String) -> Result<(), String> {
         _ => return Err(format!("unsupported app: {}", app)),
     };
 
+    open_in_app(app_name, &cwd)
+}
+
+#[cfg(target_os = "macos")]
+fn open_in_app(app_name: &str, cwd: &str) -> Result<(), String> {
+    use std::process::{Command, Stdio};
     // `open -a <App> <path>` is the macOS-correct way to launch a GUI app
     // with a path argument. It avoids issues with the app's binary not being
     // a real CLI (Obsidian, Zed without the optional CLI installed, etc.)
@@ -23,11 +28,16 @@ pub fn open_external(cwd: String, app: String) -> Result<(), String> {
     Command::new("open")
         .arg("-a")
         .arg(app_name)
-        .arg(&cwd)
+        .arg(cwd)
         .stdin(Stdio::null())
         .stdout(Stdio::null())
         .stderr(Stdio::null())
         .spawn()
         .map_err(|e| format!("failed to open in {}: {}", app_name, e))?;
     Ok(())
+}
+
+#[cfg(not(target_os = "macos"))]
+fn open_in_app(app_name: &str, _cwd: &str) -> Result<(), String> {
+    Err(format!("opening {} is only supported on macOS", app_name))
 }

@@ -254,6 +254,11 @@ export const useCells = create<Store>((set) => {
           searchOpen = { ...searchOpen };
           delete searchOpen[id];
         }
+        let searchQuery = state.searchQuery;
+        if (id in searchQuery) {
+          searchQuery = { ...searchQuery };
+          delete searchQuery[id];
+        }
 
         return {
           visibleIds: visible,
@@ -261,6 +266,7 @@ export const useCells = create<Store>((set) => {
           selectedLayoutId: layout.id,
           cells,
           searchOpen,
+          searchQuery,
         };
       }),
     setVisibleCount: (n) =>
@@ -297,12 +303,17 @@ export const useCells = create<Store>((set) => {
             ? null
             : state.focusedCellId;
 
-        // Drop searchOpen entries for dropped cells.
+        // Drop searchOpen and searchQuery entries for dropped cells.
         let searchOpen = state.searchOpen;
+        let searchQuery = state.searchQuery;
         for (const id of dropped) {
           if (searchOpen[id]) {
             if (searchOpen === state.searchOpen) searchOpen = { ...searchOpen };
             delete searchOpen[id];
+          }
+          if (id in searchQuery) {
+            if (searchQuery === state.searchQuery) searchQuery = { ...searchQuery };
+            delete searchQuery[id];
           }
         }
 
@@ -312,6 +323,7 @@ export const useCells = create<Store>((set) => {
           cells,
           focusedCellId: focused,
           searchOpen,
+          searchQuery,
         };
       }),
     setLayout: (id) =>
